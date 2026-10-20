@@ -1553,7 +1553,6 @@ footer span,
 .fixed-background-section .background-layer {
   position: absolute;
   inset: 0;
-  background-image: url('img/image.webp');
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
@@ -1587,6 +1586,22 @@ html,
 body {
   max-width: 100%;
   overflow-x: hidden;
+}
+
+/* ============================================================
+   LAZY BACKGROUND IMAGES
+   ============================================================ */
+.lazy-bg {
+  background-size: cover;
+  background-position: center;
+  background-color: #0A3D62;
+  transition: opacity 0.4s ease;
+}
+.lazy-bg:not(.bg-loaded) {
+  opacity: 0.01;
+}
+.lazy-bg.bg-loaded {
+  opacity: 1;
 }
 
 </style>
@@ -1845,7 +1860,7 @@ body {
 
         <!-- Why Choose Us -->
         <section id="why-choose-us" class="fixed-background-section" style="min-height: 350px;">
-            <div class="background-layer"></div>
+            <div class="background-layer lazy-bg" data-bg="img/image.webp"></div>
             <div class="content-layer max-w-3xl mx-auto h-full flex flex-col justify-center px-4 chooseus-animate-wrap">
                 <h2 class="text-[clamp(1.5rem,3vw,2.2rem)] font-bold text-white mb-3 text-center anim-ltr">
                     <i class="fa-solid fa-ship text-accent me-2 text-lg"></i>
@@ -2142,11 +2157,9 @@ body {
 
         <!-- Our Customers -->
         <section id="customers" class="relative overflow-hidden">
-            <div class="absolute inset-0 z-0 bg-fixed bg-no-repeat" style="
-             background-image: url('img/globe-3.webp');
-             background-size: 50%;
-             background-position: center;
-         "></div>
+<div class="absolute inset-0 z-0 bg-fixed bg-no-repeat lazy-bg"
+     data-bg="img/globe-3.webp"
+     style="background-size: 50%; background-position: center;"></div>
             <div class="absolute inset-0 z-10 bg-black/50"></div>
             <div class="relative z-20 elkaris-section py-16">
                 <div class="elkaris-container">
@@ -4352,6 +4365,35 @@ function initScrollRevealAnim() {
 }
 
 
+function initLazyBackgrounds() {
+  const lazyBgs = document.querySelectorAll('.lazy-bg[data-bg]');
+  if (!lazyBgs.length) return;
+
+  if (!('IntersectionObserver' in window)) {
+    lazyBgs.forEach(el => {
+      el.style.backgroundImage = `url('${el.dataset.bg}')`;
+      el.classList.add('bg-loaded');
+    });
+    return;
+  }
+
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      const el = entry.target;
+      el.style.backgroundImage = `url('${el.dataset.bg}')`;
+      el.classList.add('bg-loaded');
+      io.unobserve(el);
+    });
+  }, {
+    rootMargin: '200px 0px',
+    threshold: 0.01
+  });
+
+  lazyBgs.forEach(el => io.observe(el));
+}
+
+
 document.addEventListener('DOMContentLoaded', function () {
   const initLang = getInitialLang();
 
@@ -4370,6 +4412,7 @@ document.addEventListener('DOMContentLoaded', function () {
   initCountryCodeSync();
   initContactForm();
   initCarouselPause();
+   initLazyBackgrounds();
 
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
