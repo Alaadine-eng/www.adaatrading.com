@@ -1,4 +1,4 @@
-// functions/form-handler.js
+﻿// functions/form-handler.js
 
 export const onRequestPost = async (context) => {
   try {
@@ -19,12 +19,12 @@ export const onRequestPost = async (context) => {
     // 2. TURNSTILE CAPTCHA VERIFICATION
     // ============================================================
     if (!turnstileToken) {
-      return new Response("❌ Please complete the security check.", { status: 400 });
+      return new Response("Please complete the security check.", { status: 400 });
     }
 
     if (!context.env.TURNSTILE_SECRET) {
       console.error("TURNSTILE_SECRET env var is not set.");
-      return new Response("❌ Server configuration error.", { status: 500 });
+      return new Response("Server configuration error.", { status: 500 });
     }
 
     const turnstileRes = await fetch(
@@ -42,7 +42,7 @@ export const onRequestPost = async (context) => {
     const turnstileOut = await turnstileRes.json();
     if (!turnstileOut.success) {
       console.error("Turnstile failed:", turnstileOut["error-codes"]);
-      return new Response("❌ Security verification failed, please retry.", { status: 400 });
+      return new Response("Security verification failed, please retry.", { status: 400 });
     }
 
     // ============================================================
@@ -79,7 +79,7 @@ export const onRequestPost = async (context) => {
 
     // Phone: optional, but if provided must be 6-20 digits
     if (phone !== "Not provided" && !/^[0-9]{6,20}$/.test(phone)) {
-      errors.push("Phone number must contain 6–20 digits only");
+      errors.push("Phone number must contain 6-20 digits only");
     }
 
     // Message: required, 10-1200 chars
@@ -92,7 +92,7 @@ export const onRequestPost = async (context) => {
     }
 
     if (errors.length > 0) {
-      return new Response(`❌ ${errors.join(" | ")}`, { status: 400 });
+      return new Response(`${errors.join(" | ")}`, { status: 400 });
     }
 
     // ============================================================
@@ -118,7 +118,7 @@ export const onRequestPost = async (context) => {
     // ============================================================
     if (!context.env.SEBD) {
       console.error("SEBD binding is not configured.");
-      return new Response("❌ Server configuration error.", { status: 500 });
+      return new Response("Server configuration error.", { status: 500 });
     }
 
     try {
@@ -139,7 +139,7 @@ export const onRequestPost = async (context) => {
     } catch (sendErr) {
       console.error("SEBD send failed:", sendErr);
       return new Response(
-        "❌ Could not send email. Please try again later or email us directly at brahimethmane69@gmail.com.",
+        "Could not send email. Please try again later or email us directly at info@adaatrading.com.",
         { status: 500 }
       );
     }
@@ -148,12 +148,12 @@ export const onRequestPost = async (context) => {
     // 7. SUCCESS RESPONSE
     // ============================================================
     return new Response(
-      `✅ Thank you, ${fullName}! Your message has been sent. We will reply within 24 hours.`,
+      `✅Thank you, ${fullName}! Your message has been sent. We will reply within 24 hours.`,
       { status: 200 }
     );
 
   } catch (err) {
     console.error("Form handler exception:", err);
-    return new Response("❌ Server error, please try again.", { status: 500 });
+    return new Response("Server error, please try again.", { status: 500 });
   }
 };
